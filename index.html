@@ -45,7 +45,7 @@
       { key: "parlement", label: "Parlement", query: "Assemblée nationale OR Sénat France politique" },
       { key: "europe", label: "Europe", query: "Union européenne politique France" }
     ];
-    const proxy = "https://api.allorigins.win/raw?url=";
+    const proxy = "https://proxy.cors.dev/";
     const storyGrid = document.querySelector("#stories");
     const leadRegion = document.querySelector("#lead-region");
     const countNode = document.querySelector("#story-count");
@@ -84,8 +84,12 @@
       countNode.textContent = "";
     }
     async function loadFeed(feed) {
-      const rss = `https://news.google.com/rss/search?q=${encodeURIComponent(feed.query + " when:1d")}&hl=fr&gl=FR&ceid=FR:fr`;
-      const response = await fetch(proxy + encodeURIComponent(rss), { signal: AbortSignal.timeout(15000), cache: "no-store" });
+      const rss = new URL("https://news.google.com/rss/search");
+      rss.searchParams.set("q", feed.query + " when:1d");
+      rss.searchParams.set("hl", "fr");
+      rss.searchParams.set("gl", "FR");
+      rss.searchParams.set("ceid", "FR:fr");
+      const response = await fetch(proxy + rss.toString(), { signal: AbortSignal.timeout(9000), credentials: "omit", cache: "no-store" });
       if (!response.ok) throw new Error(`Flux indisponible (${response.status})`);
       const xml = new DOMParser().parseFromString(await response.text(), "application/xml");
       if (xml.querySelector("parsererror")) throw new Error("Flux d’actualités illisible");
